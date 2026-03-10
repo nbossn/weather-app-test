@@ -1,0 +1,22 @@
+{
+  "name": "weather-app",
+  "version": "1.0.0",
+  "description": "Weather application with CLI and API",
+  "main": "src/index.js",
+  "bin": {
+    "weather": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest",
+    "lint": "eslint src/"
+  },
+  "keywords": ["weather", "cli", "forecast"],
+  "author": "Claude Flow",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+  }
+}
