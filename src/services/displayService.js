@@ -8,10 +8,21 @@ class DisplayService {
 
   formatCurrent(data) {
     if (this.format === 'json') {
+      // Convert temperatures for JSON output when using Celsius
+      if (this.unit === 'C') {
+        const converted = {
+          ...data,
+          temp: this.fahrenheitToCelsius(data.temp),
+          feelsLike: this.fahrenheitToCelsius(data.feelsLike),
+          unit: 'C'
+        };
+        return JSON.stringify(converted, null, 2);
+      }
       return JSON.stringify(data, null, 2);
     }
 
     const temp = this.unit === 'C' ? this.fahrenheitToCelsius(data.temp) : data.temp;
+    const feelsLike = this.unit === 'C' ? this.fahrenheitToCelsius(data.feelsLike) : data.feelsLike;
     const unitLabel = '°' + this.unit;
 
     return `
@@ -23,18 +34,28 @@ class DisplayService {
 ║                                      ║
 ║  Humidity: ${data.humidity}%                     ║
 ║  Wind: ${data.windSpeed} mph                    ║
-║  Feels Like: ${data.feelsLike}${unitLabel}                  ║
+║  Feels Like: ${feelsLike}${unitLabel}                  ║
 ╚══════════════════════════════════════╝
     `.trim();
   }
 
-  formatForecast(forecast) {
+  formatForecast(forecast, days = 7) {
     if (this.format === 'json') {
+      // Convert temperatures for JSON output when using Celsius
+      if (this.unit === 'C') {
+        const converted = forecast.map(day => ({
+          ...day,
+          tempHigh: this.fahrenheitToCelsius(day.tempHigh),
+          tempLow: this.fahrenheitToCelsius(day.tempLow),
+          unit: 'C'
+        }));
+        return JSON.stringify(converted, null, 2);
+      }
       return JSON.stringify(forecast, null, 2);
     }
 
     let output = '\n╔════════════════════════════════════════════╗\n';
-    output += '║           7-DAY FORECAST                 ║\n';
+    output += `║           ${days}-DAY FORECAST`.padEnd(38) + '╗\n';
     output += '╠════════════════════════════════════════════╣\n';
 
     for (const day of forecast) {

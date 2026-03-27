@@ -1,14 +1,28 @@
 // Weather Service - Handles API calls to weather providers
 
+const MAX_CITY_LENGTH = 100;
+const CITY_PATTERN = /^[a-zA-Z\u00C0-\u024F\s'\-,.]+$/;
+
 class WeatherService {
   constructor(apiKey) {
-    this.apiKey = apiKey || process.env.WEATHER_API_KEY;
+    const key = apiKey || process.env.WEATHER_API_KEY;
+    if (!key) {
+      throw new Error('WEATHER_API_KEY is required. Set it via the WEATHER_API_KEY environment variable.');
+    }
+    this.apiKey = key;
     this.baseUrl = 'https://api.weather.example.com/v1';
     this.cache = new Map();
     this.cacheTimeout = 300000; // 5 minutes
   }
 
+  _validateCity(city) {
+    if (!city || typeof city !== 'string') throw new Error('City is required');
+    if (city.length > MAX_CITY_LENGTH) throw new Error('City name too long');
+    if (!CITY_PATTERN.test(city)) throw new Error('City name contains invalid characters');
+  }
+
   async getCurrent(city) {
+    this._validateCity(city);
     const cacheKey = `current:${city}`;
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
@@ -29,6 +43,7 @@ class WeatherService {
   }
 
   async getForecast(city, days = 7) {
+    this._validateCity(city);
     const cacheKey = `forecast:${city}:${days}`;
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
